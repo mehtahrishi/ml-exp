@@ -24,7 +24,7 @@ const getProcessFlow = (modelName: string) => {
     const isTreeEnsemble = ["RandomForest", "GradientBoosting", "AdaBoost"].includes(modelName)
     const isNeuralNet = ["MLPClassifier"].includes(modelName)
 
-    let step2Tech = "The model iteratively learns from larger subsets of the Training Set (Learning Curve). It optimizes weights to minimize error."
+    let step2Tech = "We retrain fresh models on larger subsets of the Training Set (Learning Curve Strategy). This visualizes how more data improves generalization."
     let step2Kitchen = "Cooking: We put the ingredients in the pan. We let it simmer, stirring constantly to mix the flavors. Adding more ingredients (Data) helps."
 
     if (isTreeEnsemble) {
@@ -34,13 +34,13 @@ const getProcessFlow = (modelName: string) => {
         step2Tech = "Epochs: The network passes the SAME data through layers multiple times (Forward/Backward pass), adjusting weights to minimize loss."
         step2Kitchen = "Simmering & Reducing: We don't add ingredients or chefs. We just keep 'working' the sauce. The longer it simmers (Epochs), the richer the flavor."
     } else if (modelName === "SVM") {
-        step2Tech = "Margin Maximization: We reveal more data points iteratively. The model finds the optimal hyperplane that maximizes the distance (Margin) between classes."
+        step2Tech = "Margin Maximization: We retrain on increasing data subsets. The model recalculates the optimal hyperplane to maximize the distance (Margin) between classes."
         step2Kitchen = "The Ruler: The Chef doesn't just want to separate the foods; they want a 'Safety Gap'. As we add more plates, they adjust the divider to keep the widest possible empty space between the Salty and Sweet piles."
     } else if (modelName === "GradientBoosting") {
         step2Tech = "Sequential Boosting: We add trees sequentially. Each new tree focuses specifically on correcting the errors (residuals) made by the previous combined trees."
         step2Kitchen = "The Line Cook Assembly: Code doesn't just hire chefs. It hires a Specialist. Chef 1 cooks. Chef 2 tastes it and fixes the salt. Chef 3 tastes that and fixes the acid. Together they make a perfect dish."
     } else if (modelName === "DecisionTree") {
-        step2Tech = "Tree Growth: We train on larger subsets of data. As data increases, the single tree finds more complex splitting rules (Nodes) to separate classes."
+        step2Tech = "Tree Growth: We retrain fresh trees on larger subsets of data. As data increases, the tree discovers more complex splitting rules (Nodes)."
         step2Kitchen = "Writing the Recipe: We start with a simple rule ('Is it Sweet?'). As we see more ingredients (Data), we add more specific steps ('Is it Sweet AND Red AND Crunchy?'). The recipe gets more detailed."
     }
 
