@@ -1,0 +1,16 @@
+fastapi
+uvicorn
+sqlalchemy
+pydantic
+scikit-learn
+requests
+python-multipart
+websockets
+pandas
+uvicorn
+sqlalchemy
+pydantic
+scikit-learn
+requests
+python-multipart
+websockets

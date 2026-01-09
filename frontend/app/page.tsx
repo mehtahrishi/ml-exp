@@ -1,0 +1,156 @@
+"use client"
+
+import { useEffect, useState } from "react"
+import Link from "next/link"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Play, CheckCircle, XCircle, Clock } from "lucide-react"
+import { Modal } from "@/components/ui/modal"
+
+type Run = {
+  id: number
+  name: string
+  status: string
+  metrics: { [key: string]: number } | null
+  created_at: string
+}
+
+export default function Dashboard() {
+  const [runs, setRuns] = useState<Run[]>([])
+
+  useEffect(() => {
+    const fetchRuns = async () => {
+      try {
+        const res = await fetch("http://localhost:8000/runs/")
+        const data = await res.json()
+        setRuns(data.reverse()) // Newest first
+      } catch (e) {
+        console.error("Failed to fetch runs", e)
+      }
+    }
+    fetchRuns()
+    const interval = setInterval(fetchRuns, 5000)
+    return () => clearInterval(interval)
+  }, [])
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case "completed": return <CheckCircle className="h-5 w-5 text-green-500" />
+      case "failed": return <XCircle className="h-5 w-5 text-red-500" />
+      case "running": return <Play className="h-5 w-5 text-blue-500 animate-pulse" />
+      default: return <Clock className="h-5 w-5 text-gray-500" />
+    }
+  }
+
+  const [isModalOpen, setIsModalOpen] = useState(false)
+
+  return (
+    <div className="min-h-screen bg-background p-8 dark:text-white">
+      <div className="max-w-7xl mx-auto space-y-8">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent">
+              ML Dashboard
+            </h1>
+            <p className="text-muted-foreground mt-2">Track your experiments in real-time.</p>
+          </div>
+          <div className="flex gap-4">
+            <button
+              onClick={async () => {
+                if (confirm("Are you sure you want to delete all run history?")) {
+                  try {
+                    await fetch("http://localhost:8000/clear_data", { method: "DELETE" })
+                    setRuns([]) // Clear local state
+                  } catch (e) {
+                    alert("Failed to clear data")
+                  }
+                }
+              }}
+              className="px-4 py-2 rounded-md font-medium border border-red-500/50 text-red-500 hover:bg-red-500/10 transition flex items-center"
+            >
+              <XCircle className="mr-2 h-4 w-4" /> Clear History
+            </button>
+            <Link
+              href="/new"
+              className="bg-primary px-4 py-2 rounded-md font-medium hover:bg-primary/90 transition text-primary-foreground shadow-lg shadow-primary/20"
+            >
+              New Experiment
+            </Link>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-6">
+          <Card className="border-border/40 bg-card/50 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle>Recent Runs</CardTitle>
+              <CardDescription>Real-time status of your training jobs</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="relative overflow-x-auto">
+                <table className="w-full text-sm text-left">
+                  <thead className="text-xs uppercase text-muted-foreground border-b border-border">
+                    <tr>
+                      <th className="px-6 py-3">Status</th>
+                      <th className="px-6 py-3">Run Name</th>
+                      <th className="px-6 py-3">Created</th>
+                      <th className="px-6 py-3">Metrics (Final)</th>
+                      <th className="px-6 py-3">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {runs.map((run) => (
+                      <tr key={run.id} className="hover:bg-muted/50 transition">
+                        <td className="px-6 py-4">{getStatusIcon(run.status)}</td>
+                        <td className="px-6 py-4 font-medium">{run.name}</td>
+                        <td className="px-6 py-4">{new Date(run.created_at).toLocaleString()}</td>
+                        <td className="px-6 py-4 font-mono text-xs">
+                          {run.metrics ? JSON.stringify(run.metrics).slice(0, 50) + "..." : "-"}
+                        </td>
+                        <td className="px-6 py-4">
+                          <Link href={`/runs/${run.id}`} className="text-blue-500 hover:underline">
+                            View Details
+                          </Link>
+                        </td>
+                      </tr>
+                    ))}
+                    {runs.length === 0 && (
+                      <tr>
+                        <td colSpan={5} className="px-6 py-8 text-center text-muted-foreground">
+                          No runs found. Start a training script to see data here.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title="Start a New Experiment"
+      >
+        <div className="space-y-4 text-sm text-muted-foreground">
+          <p>
+            To create a new experiment run, you need to execute a Python script that logs data to this dashboard.
+          </p>
+          <div className="bg-muted/50 p-4 rounded-md border border-border font-mono text-xs text-foreground overflow-x-auto">
+            {`import requests
+
+# 1. Start Run
+requests.post("http://localhost:8000/runs/", json={
+    "experiment_id": 1,
+    "name": "My New Model",
+    "parameters": {"lr": 0.01}
+})`}
+          </div>
+          <p>
+            Reference <code>backend/train_demo.py</code> for a full example with live metric logging.
+          </p>
+        </div>
+      </Modal>
+    </div>
+  )
+}
