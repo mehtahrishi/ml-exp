@@ -51,7 +51,7 @@ export default function Dashboard() {
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent">
-              ML Dashboard
+              Catalyst Flow ML
             </h1>
             <p className="text-muted-foreground mt-2">Track your experiments in real-time.</p>
           </div>
