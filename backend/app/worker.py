@@ -156,7 +156,7 @@ def train_background_task(run_id: int, dataset_path: str, model_type: str, hyper
             
             steps = 20
 
-            if model_type in ["RandomForest", "GradientBoosting", "AdaBoost"]:
+            if model_type in ["RandomForest", "GradientBoosting","AdaBoost"]:
                 # Incremental Tree Growth
                 final_n_estimators = final_params.pop("n_estimators", 100)
                 final_params["warm_start"] = True
