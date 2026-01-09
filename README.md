@@ -13,6 +13,12 @@
 
 ## 📸 Screenshots
 
+<img width="1129" height="497" alt="image" src="https://github.com/user-attachments/assets/3cacc0eb-30d8-4cdb-bc0c-d85067514aa5" />
+
+<img width="1737" height="762" alt="image" src="https://github.com/user-attachments/assets/c4b025e3-2b90-4510-b5d7-7da8b4d7617d" />
+
+
+
 **Dashboard with Experiment Comparison**
 - Real-time training visualization
 - Medal-based ranking system (🥇🥈🥉)
@@ -104,7 +110,7 @@
 
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/catalyst-flow-ml.git
+git clone https://github.com/mehtahrishi/catalyst-flow-ml.git
 cd catalyst-flow-ml
 
 # Start all services
@@ -300,22 +306,6 @@ CMD ["node", "server.js"]
 
 ## 🔧 Configuration
 
-### **Environment Variables**
-
-Create `.env` files (not tracked in git):
-
-**Backend `.env`:**
-```bash
-DATABASE_URL=sqlite:///./data/ml_experiments.db
-# Or for PostgreSQL:
-# DATABASE_URL=postgresql://user:pass@localhost/dbname
-```
-
-**Frontend `.env.local`:**
-```bash
-NEXT_PUBLIC_API_URL=http://localhost:8000
-```
-
 ### **Switching to PostgreSQL**
 
 1. Update `docker-compose.yml`:
@@ -452,10 +442,10 @@ This project showcases expertise in:
 
 ## 📧 Contact
 
-**Built by:** [Your Name]  
-**LinkedIn:** [Your LinkedIn URL]  
-**GitHub:** [Your GitHub URL]  
-**Email:** [your.email@example.com]
+**Built by:** [Hrishi Mehta]  
+**LinkedIn:** [https://www.linkedin.com/in/hrishi-mehta-889732256/]  
+**GitHub:** [https://github.com/mehtahrishi]  
+**Email:** [mehtahrishi45@gmail.com]
 
 ---
 
@@ -463,6 +453,7 @@ This project showcases expertise in:
 
 ### ⭐ Star this repo if it helped you learn!
 
-**Made with ❤️ and scikit-learn**
+**Made with ❤️**
 
 </div>
+
