@@ -16,6 +16,8 @@ type Run = {
 
 export default function Dashboard() {
   const [runs, setRuns] = useState<Run[]>([])
+  const [activeTab, setActiveTab] = useState<"recent" | "comparison">("recent")
+  const [comparisonMetric, setComparisonMetric] = useState<string>("final_accuracy")
 
   useEffect(() => {
     const fetchRuns = async () => {
@@ -81,47 +83,184 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 gap-6">
           <Card className="border-border/40 bg-card/50 backdrop-blur-sm">
             <CardHeader>
-              <CardTitle>Recent Runs</CardTitle>
-              <CardDescription>Real-time status of your training jobs</CardDescription>
+              {/* Tab Navigation */}
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex gap-2 p-1 bg-muted/50 rounded-lg">
+                  <button
+                    onClick={() => setActiveTab("recent")}
+                    className={`px-6 py-2 rounded-md font-medium transition-all ${
+                      activeTab === "recent"
+                        ? "bg-primary text-primary-foreground shadow-md"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    Recent Runs
+                  </button>
+                  <button
+                    onClick={() => setActiveTab("comparison")}
+                    className={`px-6 py-2 rounded-md font-medium transition-all ${
+                      activeTab === "comparison"
+                        ? "bg-primary text-primary-foreground shadow-md"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    Comparison
+                  </button>
+                </div>
+
+                {activeTab === "comparison" && (
+                  <select
+                    value={comparisonMetric}
+                    onChange={(e) => setComparisonMetric(e.target.value)}
+                    className="px-4 py-2 bg-background border border-border rounded-md text-sm focus:ring-2 focus:ring-primary outline-none"
+                  >
+                    <option value="final_accuracy">Final Accuracy</option>
+                    <option value="validation_accuracy">Validation Accuracy</option>
+                    <option value="final_loss">Final Loss</option>
+                    <option value="f1_score">F1 Score</option>
+                    <option value="precision">Precision</option>
+                    <option value="recall">Recall</option>
+                  </select>
+                )}
+              </div>
+
+              <CardTitle>
+                {activeTab === "recent" ? "Recent Runs" : "Experiment Comparison"}
+              </CardTitle>
+              <CardDescription>
+                {activeTab === "recent"
+                  ? "Real-time status of your training jobs"
+                  : `Compare all experiments by ${comparisonMetric.replace(/_/g, " ")}`}
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="relative overflow-x-auto">
-                <table className="w-full text-sm text-left">
-                  <thead className="text-xs uppercase text-muted-foreground border-b border-border">
-                    <tr>
-                      <th className="px-6 py-3">Status</th>
-                      <th className="px-6 py-3">Run Name</th>
-                      <th className="px-6 py-3">Created</th>
-                      <th className="px-6 py-3">Metrics (Final)</th>
-                      <th className="px-6 py-3">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border">
-                    {runs.map((run) => (
-                      <tr key={run.id} className="hover:bg-muted/50 transition">
-                        <td className="px-6 py-4">{getStatusIcon(run.status)}</td>
-                        <td className="px-6 py-4 font-medium">{run.name}</td>
-                        <td className="px-6 py-4">{new Date(run.created_at).toLocaleString()}</td>
-                        <td className="px-6 py-4 font-mono text-xs">
-                          {run.metrics ? JSON.stringify(run.metrics).slice(0, 50) + "..." : "-"}
-                        </td>
-                        <td className="px-6 py-4">
-                          <Link href={`/runs/${run.id}`} className="text-blue-500 hover:underline">
-                            View Details
-                          </Link>
-                        </td>
-                      </tr>
-                    ))}
-                    {runs.length === 0 && (
+              {/* Recent Runs Tab */}
+              {activeTab === "recent" && (
+                <div className="relative overflow-x-auto">
+                  <table className="w-full text-sm text-left">
+                    <thead className="text-xs uppercase text-muted-foreground border-b border-border">
                       <tr>
-                        <td colSpan={5} className="px-6 py-8 text-center text-muted-foreground">
-                          No runs found. Start a training script to see data here.
-                        </td>
+                        <th className="px-6 py-3">Status</th>
+                        <th className="px-6 py-3">Run Name</th>
+                        <th className="px-6 py-3">Created</th>
+                        <th className="px-6 py-3">Metrics (Final)</th>
+                        <th className="px-6 py-3">Action</th>
                       </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody className="divide-y divide-border">
+                      {runs.map((run) => (
+                        <tr key={run.id} className="hover:bg-muted/50 transition">
+                          <td className="px-6 py-4">{getStatusIcon(run.status)}</td>
+                          <td className="px-6 py-4 font-medium">{run.name}</td>
+                          <td className="px-6 py-4">{new Date(run.created_at).toLocaleString()}</td>
+                          <td className="px-6 py-4 font-mono text-xs">
+                            {run.metrics ? JSON.stringify(run.metrics).slice(0, 50) + "..." : "-"}
+                          </td>
+                          <td className="px-6 py-4">
+                            <Link href={`/runs/${run.id}`} className="text-blue-500 hover:underline">
+                              View Details
+                            </Link>
+                          </td>
+                        </tr>
+                      ))}
+                      {runs.length === 0 && (
+                        <tr>
+                          <td colSpan={5} className="px-6 py-8 text-center text-muted-foreground">
+                            No runs found. Start a training script to see data here.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              {/* Comparison Tab */}
+              {activeTab === "comparison" && (
+                <div className="space-y-4">
+                  {runs.filter(r => r.status === "completed" && r.metrics).length === 0 ? (
+                    <div className="text-center py-12 text-muted-foreground">
+                      No completed runs with metrics available for comparison.
+                    </div>
+                  ) : (
+                    <div className="relative overflow-x-auto">
+                      <table className="w-full text-sm text-left">
+                        <thead className="text-xs uppercase text-muted-foreground border-b border-border">
+                          <tr>
+                            <th className="px-6 py-3">Rank</th>
+                            <th className="px-6 py-3">Run Name</th>
+                            <th className="px-6 py-3">Model/Config</th>
+                            <th className="px-6 py-3">{comparisonMetric.replace(/_/g, " ")}</th>
+                            <th className="px-6 py-3">All Metrics</th>
+                            <th className="px-6 py-3">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-border">
+                          {runs
+                            .filter(r => r.status === "completed" && r.metrics)
+                            .sort((a, b) => {
+                              const aVal = a.metrics?.[comparisonMetric] ?? -Infinity
+                              const bVal = b.metrics?.[comparisonMetric] ?? -Infinity
+                              // Sort descending for accuracy/f1/precision/recall, ascending for loss
+                              if (comparisonMetric.includes("loss")) {
+                                return aVal - bVal
+                              }
+                              return bVal - aVal
+                            })
+                            .map((run, idx) => {
+                              const metricValue = run.metrics?.[comparisonMetric]
+                              const displayValue = metricValue !== undefined 
+                                ? metricValue.toFixed(4)
+                                : "N/A"
+                              
+                              // Medal colors for top 3
+                              const rankBadge = idx === 0 
+                                ? "bg-yellow-500/20 text-yellow-400 border-yellow-500/50"
+                                : idx === 1
+                                ? "bg-gray-400/20 text-gray-300 border-gray-400/50"
+                                : idx === 2
+                                ? "bg-orange-600/20 text-orange-400 border-orange-600/50"
+                                : "bg-muted/50 text-muted-foreground border-border"
+
+                              return (
+                                <tr key={run.id} className="hover:bg-muted/50 transition">
+                                  <td className="px-6 py-4">
+                                    <div className={`inline-flex items-center justify-center w-8 h-8 rounded-full border-2 font-bold ${rankBadge}`}>
+                                      {idx + 1}
+                                    </div>
+                                  </td>
+                                  <td className="px-6 py-4 font-medium">{run.name}</td>
+                                  <td className="px-6 py-4 text-xs text-muted-foreground">
+                                    {new Date(run.created_at).toLocaleDateString()}
+                                  </td>
+                                  <td className="px-6 py-4">
+                                    <span className="font-mono text-lg font-bold bg-primary/10 px-3 py-1 rounded">
+                                      {displayValue}
+                                    </span>
+                                  </td>
+                                  <td className="px-6 py-4 font-mono text-xs text-muted-foreground">
+                                    {run.metrics ? (
+                                      <div className="space-y-1">
+                                        {Object.entries(run.metrics).slice(0, 2).map(([key, val]) => (
+                                          <div key={key}>{key}: {(val as number).toFixed(3)}</div>
+                                        ))}
+                                      </div>
+                                    ) : "-"}
+                                  </td>
+                                  <td className="px-6 py-4">
+                                    <Link href={`/runs/${run.id}`} className="text-blue-500 hover:underline">
+                                      View Details
+                                    </Link>
+                                  </td>
+                                </tr>
+                              )
+                            })}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

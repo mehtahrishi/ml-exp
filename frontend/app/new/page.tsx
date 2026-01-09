@@ -282,69 +282,377 @@ export default function NewExperimentPage() {
                             </div>
                         </div>
 
-                        {/* Dynamic Params (Simple version) */}
-                        {selectedModel === "MLPClassifier" && (
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <label className="text-xs uppercase text-muted-foreground">Learning Rate</label>
-                                    <input
-                                        type="number" step="0.0001" defaultValue="0.001"
-                                        onChange={(e) => setParams({ ...params, learning_rate_init: parseFloat(e.target.value) })}
-                                        className="w-full bg-background border border-border rounded px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 outline-none"
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-xs uppercase text-muted-foreground">Epochs</label>
-                                    <input
-                                        type="number" defaultValue="50"
-                                        onChange={(e) => setParams({ ...params, max_iter: parseInt(e.target.value) })}
-                                        className="w-full bg-background border border-border rounded px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 outline-none"
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-xs uppercase text-muted-foreground">Batch Size</label>
-                                    <input
-                                        type="number" defaultValue="32"
-                                        onChange={(e) => setParams({ ...params, batch_size: parseInt(e.target.value) })}
-                                        className="w-full bg-background border border-border rounded px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 outline-none"
-                                    />
-                                </div>
+                        {/* Hybrid Hyperparameter Section */}
+                        <div className="space-y-4">
+                            <div className="flex items-center justify-between">
+                                <h4 className="text-sm font-semibold text-white">Key Hyperparameters</h4>
+                                <span className="text-xs text-muted-foreground">Tunable parameters that impact performance</span>
                             </div>
-                        )}
-                        {(selectedModel === "RandomForest" || selectedModel === "GradientBoosting" || selectedModel === "AdaBoost") && (
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <label className="text-xs uppercase text-muted-foreground">Trees (Estimators)</label>
-                                    <input
-                                        type="number" defaultValue={selectedModel === "AdaBoost" ? "50" : "100"}
-                                        onChange={(e) => setParams({ ...params, n_estimators: parseInt(e.target.value) })}
-                                        className="w-full bg-background border border-border rounded px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 outline-none"
-                                    />
-                                </div>
-                                {(selectedModel !== "AdaBoost") && (
-                                    <div className="space-y-2">
-                                        <label className="text-xs uppercase text-muted-foreground">Max Depth</label>
-                                        <input
-                                            type="number" defaultValue="10"
-                                            onChange={(e) => setParams({ ...params, max_depth: parseInt(e.target.value) })}
-                                            className="w-full bg-background border border-border rounded px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 outline-none"
-                                        />
+
+                            {/* RandomForest */}
+                            {selectedModel === "RandomForest" && (
+                                <div className="space-y-4">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <label className="text-xs uppercase text-muted-foreground flex items-center justify-between">
+                                                Trees (n_estimators)
+                                                <span className="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded">Tunable</span>
+                                            </label>
+                                            <input
+                                                type="number" min="10" max="500" defaultValue="100"
+                                                onChange={(e) => setParams({ ...params, n_estimators: parseInt(e.target.value) })}
+                                                className="w-full bg-background border border-blue-500/50 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-xs uppercase text-muted-foreground flex items-center justify-between">
+                                                Max Depth
+                                                <span className="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded">Tunable</span>
+                                            </label>
+                                            <input
+                                                type="number" min="3" max="50" defaultValue="10"
+                                                onChange={(e) => setParams({ ...params, max_depth: parseInt(e.target.value) })}
+                                                className="w-full bg-background border border-blue-500/50 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                            />
+                                        </div>
                                     </div>
-                                )}
-                            </div>
-                        )}
-                        {selectedModel === "KNN" && (
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <label className="text-xs uppercase text-muted-foreground">Neighbors (K)</label>
-                                    <input
-                                        type="number" defaultValue="5"
-                                        onChange={(e) => setParams({ ...params, n_neighbors: parseInt(e.target.value) })}
-                                        className="w-full bg-background border border-border rounded px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 outline-none"
-                                    />
+                                    <div className="bg-muted/20 border border-border/50 rounded p-3 text-xs text-muted-foreground space-y-1">
+                                        <div className="font-semibold text-white mb-2">Fixed Parameters (Optimized Defaults):</div>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <div>• criterion: "gini"</div>
+                                            <div>• min_samples_split: 2</div>
+                                            <div>• min_samples_leaf: 1</div>
+                                            <div>• random_state: 42</div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        )}
+                            )}
+
+                            {/* GradientBoosting */}
+                            {selectedModel === "GradientBoosting" && (
+                                <div className="space-y-4">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <label className="text-xs uppercase text-muted-foreground flex items-center justify-between">
+                                                Trees (n_estimators)
+                                                <span className="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded">Tunable</span>
+                                            </label>
+                                            <input
+                                                type="number" min="10" max="500" defaultValue="100"
+                                                onChange={(e) => setParams({ ...params, n_estimators: parseInt(e.target.value) })}
+                                                className="w-full bg-background border border-blue-500/50 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-xs uppercase text-muted-foreground flex items-center justify-between">
+                                                Learning Rate
+                                                <span className="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded">Tunable</span>
+                                            </label>
+                                            <input
+                                                type="number" min="0.01" max="1" step="0.01" defaultValue="0.1"
+                                                onChange={(e) => setParams({ ...params, learning_rate: parseFloat(e.target.value) })}
+                                                className="w-full bg-background border border-blue-500/50 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="bg-muted/20 border border-border/50 rounded p-3 text-xs text-muted-foreground space-y-1">
+                                        <div className="font-semibold text-white mb-2">Fixed Parameters (Optimized Defaults):</div>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <div>• max_depth: 3</div>
+                                            <div>• subsample: 1.0</div>
+                                            <div>• loss: "log_loss"</div>
+                                            <div>• random_state: 42</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* MLPClassifier (Neural Network) */}
+                            {selectedModel === "MLPClassifier" && (
+                                <div className="space-y-4">
+                                    <div className="grid grid-cols-3 gap-4">
+                                        <div className="space-y-2">
+                                            <label className="text-xs uppercase text-muted-foreground flex items-center justify-between">
+                                                Learning Rate
+                                                <span className="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded">Tunable</span>
+                                            </label>
+                                            <input
+                                                type="number" min="0.0001" max="0.1" step="0.0001" defaultValue="0.001"
+                                                onChange={(e) => setParams({ ...params, learning_rate_init: parseFloat(e.target.value) })}
+                                                className="w-full bg-background border border-blue-500/50 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-xs uppercase text-muted-foreground flex items-center justify-between">
+                                                Epochs
+                                                <span className="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded">Tunable</span>
+                                            </label>
+                                            <input
+                                                type="number" min="10" max="500" defaultValue="50"
+                                                onChange={(e) => setParams({ ...params, max_iter: parseInt(e.target.value) })}
+                                                className="w-full bg-background border border-blue-500/50 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-xs uppercase text-muted-foreground flex items-center justify-between">
+                                                Hidden Layers
+                                                <span className="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded">Tunable</span>
+                                            </label>
+                                            <select
+                                                defaultValue="medium"
+                                                onChange={(e) => {
+                                                    const val = e.target.value
+                                                    const sizes = val === "small" ? [32] : val === "medium" ? [64, 32] : [128, 64, 32]
+                                                    setParams({ ...params, hidden_layer_sizes: sizes })
+                                                }}
+                                                className="w-full bg-background border border-blue-500/50 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                            >
+                                                <option value="small">Small (32)</option>
+                                                <option value="medium">Medium (64,32)</option>
+                                                <option value="large">Large (128,64,32)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div className="bg-muted/20 border border-border/50 rounded p-3 text-xs text-muted-foreground space-y-1">
+                                        <div className="font-semibold text-white mb-2">Fixed Parameters (Optimized Defaults):</div>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <div>• activation: "relu"</div>
+                                            <div>• solver: "adam"</div>
+                                            <div>• batch_size: 32</div>
+                                            <div>• alpha: 0.0001</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* SVM */}
+                            {selectedModel === "SVM" && (
+                                <div className="space-y-4">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <label className="text-xs uppercase text-muted-foreground flex items-center justify-between">
+                                                C (Regularization)
+                                                <span className="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded">Tunable</span>
+                                            </label>
+                                            <input
+                                                type="number" min="0.01" max="100" step="0.1" defaultValue="1.0"
+                                                onChange={(e) => setParams({ ...params, C: parseFloat(e.target.value) })}
+                                                className="w-full bg-background border border-blue-500/50 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-xs uppercase text-muted-foreground flex items-center justify-between">
+                                                Kernel
+                                                <span className="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded">Tunable</span>
+                                            </label>
+                                            <select
+                                                defaultValue="rbf"
+                                                onChange={(e) => setParams({ ...params, kernel: e.target.value })}
+                                                className="w-full bg-background border border-blue-500/50 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                            >
+                                                <option value="rbf">RBF (Radial)</option>
+                                                <option value="linear">Linear</option>
+                                                <option value="poly">Polynomial</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div className="bg-muted/20 border border-border/50 rounded p-3 text-xs text-muted-foreground space-y-1">
+                                        <div className="font-semibold text-white mb-2">Fixed Parameters (Optimized Defaults):</div>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <div>• gamma: "scale"</div>
+                                            <div>• probability: True</div>
+                                            <div>• cache_size: 200</div>
+                                            <div>• random_state: 42</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* LogisticRegression */}
+                            {selectedModel === "LogisticRegression" && (
+                                <div className="space-y-4">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <label className="text-xs uppercase text-muted-foreground flex items-center justify-between">
+                                                C (Regularization)
+                                                <span className="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded">Tunable</span>
+                                            </label>
+                                            <input
+                                                type="number" min="0.01" max="100" step="0.1" defaultValue="1.0"
+                                                onChange={(e) => setParams({ ...params, C: parseFloat(e.target.value) })}
+                                                className="w-full bg-background border border-blue-500/50 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-xs uppercase text-muted-foreground flex items-center justify-between">
+                                                Solver
+                                                <span className="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded">Tunable</span>
+                                            </label>
+                                            <select
+                                                defaultValue="lbfgs"
+                                                onChange={(e) => setParams({ ...params, solver: e.target.value })}
+                                                className="w-full bg-background border border-blue-500/50 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                            >
+                                                <option value="lbfgs">lbfgs</option>
+                                                <option value="liblinear">liblinear</option>
+                                                <option value="saga">saga</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div className="bg-muted/20 border border-border/50 rounded p-3 text-xs text-muted-foreground space-y-1">
+                                        <div className="font-semibold text-white mb-2">Fixed Parameters (Optimized Defaults):</div>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <div>• max_iter: 1000</div>
+                                            <div>• penalty: "l2"</div>
+                                            <div>• multi_class: "auto"</div>
+                                            <div>• random_state: 42</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* DecisionTree */}
+                            {selectedModel === "DecisionTree" && (
+                                <div className="space-y-4">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <label className="text-xs uppercase text-muted-foreground flex items-center justify-between">
+                                                Max Depth
+                                                <span className="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded">Tunable</span>
+                                            </label>
+                                            <input
+                                                type="number" min="3" max="50" defaultValue="10"
+                                                onChange={(e) => setParams({ ...params, max_depth: parseInt(e.target.value) })}
+                                                className="w-full bg-background border border-blue-500/50 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-xs uppercase text-muted-foreground flex items-center justify-between">
+                                                Min Samples Split
+                                                <span className="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded">Tunable</span>
+                                            </label>
+                                            <input
+                                                type="number" min="2" max="20" defaultValue="2"
+                                                onChange={(e) => setParams({ ...params, min_samples_split: parseInt(e.target.value) })}
+                                                className="w-full bg-background border border-blue-500/50 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="bg-muted/20 border border-border/50 rounded p-3 text-xs text-muted-foreground space-y-1">
+                                        <div className="font-semibold text-white mb-2">Fixed Parameters (Optimized Defaults):</div>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <div>• criterion: "gini"</div>
+                                            <div>• splitter: "best"</div>
+                                            <div>• min_samples_leaf: 1</div>
+                                            <div>• random_state: 42</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* KNN */}
+                            {selectedModel === "KNN" && (
+                                <div className="space-y-4">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <label className="text-xs uppercase text-muted-foreground flex items-center justify-between">
+                                                Neighbors (K)
+                                                <span className="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded">Tunable</span>
+                                            </label>
+                                            <input
+                                                type="number" min="1" max="50" defaultValue="5"
+                                                onChange={(e) => setParams({ ...params, n_neighbors: parseInt(e.target.value) })}
+                                                className="w-full bg-background border border-blue-500/50 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-xs uppercase text-muted-foreground flex items-center justify-between">
+                                                Weights
+                                                <span className="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded">Tunable</span>
+                                            </label>
+                                            <select
+                                                defaultValue="uniform"
+                                                onChange={(e) => setParams({ ...params, weights: e.target.value })}
+                                                className="w-full bg-background border border-blue-500/50 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                            >
+                                                <option value="uniform">Uniform</option>
+                                                <option value="distance">Distance</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div className="bg-muted/20 border border-border/50 rounded p-3 text-xs text-muted-foreground space-y-1">
+                                        <div className="font-semibold text-white mb-2">Fixed Parameters (Optimized Defaults):</div>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <div>• algorithm: "auto"</div>
+                                            <div>• metric: "minkowski"</div>
+                                            <div>• p: 2 (Euclidean)</div>
+                                            <div>• leaf_size: 30</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* AdaBoost */}
+                            {selectedModel === "AdaBoost" && (
+                                <div className="space-y-4">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <label className="text-xs uppercase text-muted-foreground flex items-center justify-between">
+                                                Estimators
+                                                <span className="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded">Tunable</span>
+                                            </label>
+                                            <input
+                                                type="number" min="10" max="200" defaultValue="50"
+                                                onChange={(e) => setParams({ ...params, n_estimators: parseInt(e.target.value) })}
+                                                className="w-full bg-background border border-blue-500/50 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-xs uppercase text-muted-foreground flex items-center justify-between">
+                                                Learning Rate
+                                                <span className="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded">Tunable</span>
+                                            </label>
+                                            <input
+                                                type="number" min="0.1" max="2" step="0.1" defaultValue="1.0"
+                                                onChange={(e) => setParams({ ...params, learning_rate: parseFloat(e.target.value) })}
+                                                className="w-full bg-background border border-blue-500/50 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="bg-muted/20 border border-border/50 rounded p-3 text-xs text-muted-foreground space-y-1">
+                                        <div className="font-semibold text-white mb-2">Fixed Parameters (Optimized Defaults):</div>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <div>• algorithm: "SAMME.R"</div>
+                                            <div>• base_estimator: DecisionTree</div>
+                                            <div>• random_state: 42</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* NaiveBayes - Minimal tuning */}
+                            {selectedModel === "NaiveBayes" && (
+                                <div className="space-y-4">
+                                    <div className="grid grid-cols-1 gap-4">
+                                        <div className="space-y-2">
+                                            <label className="text-xs uppercase text-muted-foreground flex items-center justify-between">
+                                                Var Smoothing
+                                                <span className="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded">Tunable</span>
+                                            </label>
+                                            <input
+                                                type="number" min="1e-12" max="1e-6" step="1e-10" defaultValue="1e-9"
+                                                onChange={(e) => setParams({ ...params, var_smoothing: parseFloat(e.target.value) })}
+                                                className="w-full bg-background border border-blue-500/50 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="bg-muted/20 border border-border/50 rounded p-3 text-xs text-muted-foreground space-y-1">
+                                        <div className="font-semibold text-white mb-2">About Naive Bayes:</div>
+                                        <div>This is a probabilistic model with minimal hyperparameters. It assumes feature independence and is extremely fast for training and inference.</div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
 
                         {/* Model Explainer */}
                         {selectedModel && (
