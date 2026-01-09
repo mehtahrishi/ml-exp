@@ -156,8 +156,8 @@ def train_background_task(run_id: int, dataset_path: str, model_type: str, hyper
             
             steps = 20
 
-            if model_type in ["RandomForest", "GradientBoosting","AdaBoost"]:
-                # Incremental Tree Growth
+            if model_type in ["RandomForest", "GradientBoosting"]:
+                # Incremental Tree Growth (supports warm_start)
                 final_n_estimators = final_params.pop("n_estimators", 100)
                 final_params["warm_start"] = True
                 final_params["n_estimators"] = 0 
@@ -167,6 +167,22 @@ def train_background_task(run_id: int, dataset_path: str, model_type: str, hyper
                 
                 for i in range(1, steps + 1):
                     model.n_estimators += trees_per_step
+                    model.fit(X_train, y_train)
+                    
+                    # Log against Validation
+                    log_step(model, i, X_val, y_val, X_train, y_train)
+                    time.sleep(0.5)
+            
+            elif model_type == "AdaBoost":
+                # AdaBoost doesn't support warm_start, so we train incrementally from scratch
+                final_n_estimators = final_params.pop("n_estimators", 50)
+                estimators_per_step = max(1, final_n_estimators // steps)
+                
+                for i in range(1, steps + 1):
+                    current_estimators = min(estimators_per_step * i, final_n_estimators)
+                    final_params["n_estimators"] = current_estimators
+                    
+                    model = ModelClass(**final_params)
                     model.fit(X_train, y_train)
                     
                     # Log against Validation
